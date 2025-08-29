@@ -24,24 +24,24 @@
     html,body{ height:100%; margin:0; padding:0; background:transparent; font-family:"Lexend",system-ui; }
     body{ display:flex; width:100%; height:100%; }
 
-    .wrap{ flex:1; padding:clamp(8px,2vw,20px); display:flex; flex-direction:column; gap:clamp(8px,1.5vh,16px); }
-    .header{ display:flex; justify-content:space-between; align-items:center; }
-    .title{ font-weight:700; color:var(--blue); font-size:clamp(1.1rem,2.5vw,1.6rem); }
+    .wrap{ flex:1; padding:clamp(8px,2vw,20px); display:flex; flex-direction:column; gap:clamp(8px,1.5vh,16px); align-items:center; }
+    .header{ display:flex; justify-content:center; align-items:center; }
+    .title{ font-weight:700; color:var(--blue); font-size:clamp(1.1rem,2.5vw,1.6rem); background:rgba(255,255,255,0.8); padding:8px 16px; border-radius:var(--radius); box-shadow:var(--shadow); }
 
-    .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    .actions{ display:flex; justify-content:center; gap:12px; margin-top:16px; }
     button{ height:var(--btn-h); padding:0 clamp(16px,2vw,20px); border:none; border-radius:14px; font-weight:700; color:white; cursor:pointer; font-size:clamp(1rem,2vw,1.1rem); box-shadow:var(--shadow); transition:transform .06s ease, box-shadow .2s ease; }
     button:hover{ transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
     button:active{ transform:translateY(0); }
 
     #addTeam{ background:var(--teal); }
-    #clearScores{ background:var(--blue); }
+    #clearScores{ background:var(--teal); }
     .minus{ background:var(--sage); }
     .plus{ background:var(--teal); }
 
-    .remove{ background:white; color:var(--lav2); border:2px solid var(--lav2); font-size:0.8rem; height:32px; padding:0 12px; margin:0 auto; display:block; border-radius:10px; font-weight:700; }
+    .remove{ background:white; color:var(--lav2); border:2px solid var(--lav2); font-size:1rem; height:32px; width:32px; display:flex; align-items:center; justify-content:center; margin:0 auto; border-radius:50%; font-weight:700; cursor:pointer; }
 
-    .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr)); gap:clamp(10px,1.6vw,16px); }
-    .card{ background:rgba(255,255,255,0.8); border-radius:var(--radius); box-shadow:var(--shadow); padding:clamp(10px,1.2vw,14px); display:flex; flex-direction:column; gap:clamp(8px,1vh,12px); }
+    .grid{ display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(10px,1.6vw,16px); width:100%; }
+    .card{ background:rgba(255,255,255,0.8); border-radius:var(--radius); box-shadow:var(--shadow); padding:clamp(10px,1.2vw,14px); display:flex; flex-direction:column; gap:clamp(8px,1vh,12px); min-width:240px; max-width:280px; }
     .name{ width:100%; border:none; border-radius:12px; padding:12px; font-weight:700; font-size:clamp(1rem,2.1vw,1.2rem); }
     .score{ text-align:center; color:var(--lav2); font-weight:700; font-size:clamp(2rem,7.5vw,3.6rem); }
     .row{ display:flex; gap:10px; }
@@ -54,13 +54,13 @@
   <div class="wrap" id="app">
     <div class="header">
       <div class="title">The Ritter Run Down — Scoreboard</div>
-      <div class="actions">
-        <button id="addTeam">+ Team</button>
-        <button id="clearScores">Clear Scores</button>
-      </div>
     </div>
 
     <div id="teams" class="grid" aria-live="polite"></div>
+    <div class="actions">
+      <button id="addTeam">+ Team</button>
+      <button id="clearScores">Clear Scores</button>
+    </div>
   </div>
 
   <template id="teamTemplate">
@@ -71,7 +71,7 @@
         <button class="btn minus" aria-label="Minus one">−1</button>
         <button class="btn plus" aria-label="Plus one">+1</button>
       </div>
-      <button class="btn remove" aria-label="Remove team">Remove</button>
+      <button class="btn remove" aria-label="Remove team">×</button>
     </div>
   </template>
 
