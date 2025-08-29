@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ritter Run Down — Scoreboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --blue:#4A7A92;
+      --teal:#5A94B1;
+      --sage:#879B8D;
+      --lav:#756A85;
+      --soft1:#C2D6E1;
+      --soft2:#D3DDD7;
+      --aqua:#A0B4A7;
+      --lav2:#8E869F;
+      --lav3:#C4BFD0;
+      --radius: 16px;
+      --shadow: 0 8px 24px rgba(0,0,0,.12);
+      --btn-h: 56px;
+    }
+    *,*::before,*::after{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; padding:0; background:transparent; font-family:"Lexend",system-ui; }
+    body{ display:flex; width:100%; height:100%; }
+
+    .wrap{ flex:1; padding:clamp(8px,2vw,20px); display:flex; flex-direction:column; gap:clamp(8px,1.5vh,16px); }
+    .header{ display:flex; justify-content:space-between; align-items:center; }
+    .title{ font-weight:700; color:var(--blue); font-size:clamp(1.1rem,2.5vw,1.6rem); }
+
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    button{ height:var(--btn-h); padding:0 clamp(16px,2vw,20px); border:none; border-radius:14px; font-weight:700; color:white; cursor:pointer; font-size:clamp(1rem,2vw,1.1rem); box-shadow:var(--shadow); transition:transform .06s ease, box-shadow .2s ease; }
+    button:hover{ transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
+    button:active{ transform:translateY(0); }
+
+    #addTeam{ background:var(--teal); }
+    #clearScores{ background:var(--blue); }
+    .minus{ background:var(--sage); }
+    .plus{ background:var(--teal); }
+
+    .remove{ background:white; color:var(--lav2); border:2px solid var(--lav2); font-size:0.8rem; height:32px; padding:0 12px; margin:0 auto; display:block; border-radius:10px; font-weight:700; }
+
+    .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr)); gap:clamp(10px,1.6vw,16px); }
+    .card{ background:rgba(255,255,255,0.8); border-radius:var(--radius); box-shadow:var(--shadow); padding:clamp(10px,1.2vw,14px); display:flex; flex-direction:column; gap:clamp(8px,1vh,12px); }
+    .name{ width:100%; border:none; border-radius:12px; padding:12px; font-weight:700; font-size:clamp(1rem,2.1vw,1.2rem); }
+    .score{ text-align:center; color:var(--lav2); font-weight:700; font-size:clamp(2rem,7.5vw,3.6rem); }
+    .row{ display:flex; gap:10px; }
+    .row .btn{ flex:1; }
+
+    .footer{ display:none; }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <div class="header">
+      <div class="title">The Ritter Run Down — Scoreboard</div>
+      <div class="actions">
+        <button id="addTeam">+ Team</button>
+        <button id="clearScores">Clear Scores</button>
+      </div>
+    </div>
+
+    <div id="teams" class="grid" aria-live="polite"></div>
+  </div>
+
+  <template id="teamTemplate">
+    <div class="card" data-team>
+      <input class="name" type="text" placeholder="Team name" />
+      <div class="score" data-score>0</div>
+      <div class="row">
+        <button class="btn minus" aria-label="Minus one">−1</button>
+        <button class="btn plus" aria-label="Plus one">+1</button>
+      </div>
+      <button class="btn remove" aria-label="Remove team">Remove</button>
+    </div>
+  </template>
+
+  <script>
+    (function(){
+      const $ = s => document.querySelector(s);
+      const teamsEl = $('#teams');
+      const tpl = document.getElementById('teamTemplate');
+      const KEY = 'rrd_scoreboard_v1';
+      let state = load() || { teams:[{name:'Team 1',score:0},{name:'Team 2',score:0}], selected:0 };
+      function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch{return null} }
+      function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+      function render(){ teamsEl.innerHTML=''; state.teams.forEach((t,i)=>{ const node = tpl.content.firstElementChild.cloneNode(true); const name=node.querySelector('.name'); const score=node.querySelector('[data-score]'); const minus=node.querySelector('.minus'); const plus=node.querySelector('.plus'); const remove=node.querySelector('.remove'); name.value=t.name; score.textContent=t.score; name.oninput=()=>{t.name=name.value;save();}; minus.onclick=()=>update(i,-1); plus.onclick=()=>update(i,1); remove.onclick=()=>{ if(confirm('Remove this team?')) { state.teams.splice(i,1); if(state.selected>=state.teams.length) state.selected=Math.max(0,state.teams.length-1); save(); render(); } }; node.onclick=()=>select(i); teamsEl.appendChild(node); }); }
+      function select(i){ state.selected=i; save(); flashCard(i); }
+      function flashCard(i){ const el=teamsEl.children[i]; if(!el) return; el.style.boxShadow='0 0 0 3px rgba(90,148,177,.35),0 0 18px rgba(117,106,133,.25)'; setTimeout(()=>el.style.boxShadow='',220); }
+      function update(i,d){ const t=state.teams[i]; if(!t) return; t.score+=d; save(); const el=teamsEl.children[i]; if(!el) return; const sc=el.querySelector('[data-score]'); sc.textContent=t.score; sc.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:160}); }
+      $('#addTeam').onclick=()=>{state.teams.push({name:'Team '+(state.teams.length+1),score:0});save();render();};
+      $('#clearScores').onclick=()=>{state.teams.forEach(t=>t.score=0);save();render();};
+      window.addEventListener('keydown',e=>{if(document.activeElement&&['INPUT','TEXTAREA'].includes(document.activeElement.tagName))return;const k=e.key;if(k>='1'&&k<='8'){const idx=+k-1;if(idx<state.teams.length)select(idx);}else if(k==='+'||k==='='){update(state.selected,1);}else if(k==='-'||k==='_'){update(state.selected,-1);}else if(k==='c'||k==='C'){state.teams.forEach(t=>t.score=0);save();render();}});
+      render(); if(state.selected>=state.teams.length) state.selected=Math.max(0,state.teams.length-1); save();
+    })();
+  </script>
+</body>
+</html>
